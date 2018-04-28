@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
-    <device id="retina4_0" orientation="portrait">
+    <device id="retina5_9" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
@@ -15,11 +15,11 @@
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="StartViewController" customModule="FlickrSlideShow" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5GW-Hl-kW0">
-                                <rect key="frame" x="18" y="490" width="284" height="48"/>
+                                <rect key="frame" x="18" y="700" width="339" height="48"/>
                                 <color key="backgroundColor" red="0.36148361645980331" green="0.69202324784386704" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="48" id="QFR-Mi-nlK"/>
@@ -56,55 +56,74 @@
             <objects>
                 <viewController id="pb3-hm-Oa4" customClass="SlideViewController" customModule="FlickrSlideShow" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="2ey-zr-rpI">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="4" minValue="0.0" maxValue="9" translatesAutoresizingMaskIntoConstraints="NO" id="dpn-Yz-7cf">
-                                <rect key="frame" x="16" y="490" width="288" height="49"/>
+                                <rect key="frame" x="16" y="700" width="343" height="49"/>
                                 <constraints>
                                     <constraint firstAttribute="width" relation="lessThanOrEqual" constant="416" id="G3O-cI-ieX"/>
                                     <constraint firstAttribute="height" constant="48" id="SGE-pb-KPK"/>
                                 </constraints>
+                                <connections>
+                                    <action selector="valueChanged:" destination="pb3-hm-Oa4" eventType="valueChanged" id="sAd-nP-ncr"/>
+                                </connections>
                             </slider>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vmJ-N1-Nar">
-                                <rect key="frame" x="46" y="60" width="228" height="422"/>
+                                <rect key="frame" x="46" y="84" width="283" height="608"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ufi-Zi-pj5">
-                                        <rect key="frame" x="0.0" y="0.0" width="228" height="17"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="283" height="17"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="rmJ-g7-EkP">
-                                        <rect key="frame" x="0.0" y="17" width="228" height="405"/>
+                                        <rect key="frame" x="0.0" y="17" width="283" height="591"/>
                                     </imageView>
+                                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="Ke9-gr-8Xi">
+                                        <rect key="frame" x="131" y="302" width="20" height="20"/>
+                                    </activityIndicatorView>
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="bottom" secondItem="rmJ-g7-EkP" secondAttribute="bottom" id="02i-vr-OVX"/>
                                     <constraint firstAttribute="trailing" secondItem="Ufi-Zi-pj5" secondAttribute="trailing" id="3zt-iK-Ven"/>
+                                    <constraint firstItem="Ke9-gr-8Xi" firstAttribute="centerX" secondItem="rmJ-g7-EkP" secondAttribute="centerX" id="Jj1-aZ-Zsk"/>
                                     <constraint firstItem="rmJ-g7-EkP" firstAttribute="top" secondItem="Ufi-Zi-pj5" secondAttribute="bottom" id="MSG-Tj-AYR"/>
                                     <constraint firstAttribute="trailing" secondItem="rmJ-g7-EkP" secondAttribute="trailing" id="Oob-t1-tO1"/>
                                     <constraint firstItem="rmJ-g7-EkP" firstAttribute="leading" secondItem="vmJ-N1-Nar" secondAttribute="leading" id="Tri-fv-vhV"/>
                                     <constraint firstItem="Ufi-Zi-pj5" firstAttribute="top" secondItem="vmJ-N1-Nar" secondAttribute="top" id="aro-9x-fIH"/>
+                                    <constraint firstItem="Ke9-gr-8Xi" firstAttribute="centerY" secondItem="rmJ-g7-EkP" secondAttribute="centerY" id="cbN-pi-h1i"/>
                                     <constraint firstItem="Ufi-Zi-pj5" firstAttribute="leading" secondItem="vmJ-N1-Nar" secondAttribute="leading" id="gaG-hS-27y"/>
                                 </constraints>
                             </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="duration: 4" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QFM-yv-K2S">
+                                <rect key="frame" x="18" y="748" width="66" height="16"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="FmF-37-lbO" firstAttribute="trailing" secondItem="vmJ-N1-Nar" secondAttribute="trailing" constant="46" id="4hL-Rm-0Sw"/>
                             <constraint firstItem="dpn-Yz-7cf" firstAttribute="centerX" secondItem="FmF-37-lbO" secondAttribute="centerX" id="9J1-Qw-Z6g"/>
+                            <constraint firstItem="QFM-yv-K2S" firstAttribute="leading" secondItem="dpn-Yz-7cf" secondAttribute="leading" id="G5Q-m5-hQr"/>
                             <constraint firstItem="FmF-37-lbO" firstAttribute="bottom" secondItem="dpn-Yz-7cf" secondAttribute="bottom" constant="30" id="IZo-gK-0SS"/>
                             <constraint firstItem="FmF-37-lbO" firstAttribute="trailing" secondItem="dpn-Yz-7cf" secondAttribute="trailing" priority="900" constant="18" id="LFj-91-TDf"/>
+                            <constraint firstItem="QFM-yv-K2S" firstAttribute="trailing" relation="lessThanOrEqual" secondItem="dpn-Yz-7cf" secondAttribute="trailing" id="Rmr-zG-M1t"/>
                             <constraint firstItem="vmJ-N1-Nar" firstAttribute="leading" secondItem="FmF-37-lbO" secondAttribute="leading" constant="46" id="T8J-bf-Xry"/>
                             <constraint firstItem="vmJ-N1-Nar" firstAttribute="top" secondItem="FmF-37-lbO" secondAttribute="top" constant="40" id="lpP-84-BNE"/>
                             <constraint firstItem="dpn-Yz-7cf" firstAttribute="top" secondItem="vmJ-N1-Nar" secondAttribute="bottom" constant="8" id="p8d-j3-Cm4"/>
+                            <constraint firstItem="QFM-yv-K2S" firstAttribute="top" secondItem="dpn-Yz-7cf" secondAttribute="bottom" id="wts-Ab-fPt"/>
                             <constraint firstItem="dpn-Yz-7cf" firstAttribute="leading" secondItem="FmF-37-lbO" secondAttribute="leading" priority="900" constant="18" id="zgG-Nc-9RS"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="FmF-37-lbO"/>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="Ke9-gr-8Xi" id="h4G-RW-rUq"/>
+                        <outlet property="durationLabel" destination="QFM-yv-K2S" id="MHW-Jb-oOa"/>
                         <outlet property="imageView" destination="rmJ-g7-EkP" id="twL-2k-EZA"/>
                         <outlet property="titleLabel" destination="Ufi-Zi-pj5" id="I9v-bs-N9Q"/>
                     </connections>
