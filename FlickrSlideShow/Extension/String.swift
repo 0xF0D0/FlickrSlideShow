@@ -11,6 +11,11 @@ import Foundation
 //TODO: Should I bound check? It'd be safe if bound check can stop termination by exception
 
 extension String {
+  
+  var nsString: NSString {
+    return NSString(string: self)
+  }
+  
   private func cut(start: Int, end: Int) -> String.SubSequence {
     let startIndex = self.index(self.startIndex, offsetBy: start)
     let endIndex = self.index(self.startIndex, offsetBy: end)
@@ -37,5 +42,4 @@ extension String {
   subscript(_ sequence: PartialRangeThrough<Int>) -> String {
     return String(self.cut(start: 0, end: sequence.upperBound))
   }
-  
 }

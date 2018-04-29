@@ -55,6 +55,7 @@ final class FlickrImageAPI {
     task.resume()
   }
   
+  ///Get image from url
   func image(from metaData: FlickrImageMetaData, completion: @escaping (UIImage?, Error?) -> Void) {
     guard let requestURL = URL(string: metaData.mediaLink)
     else { return completion(nil, ResponseError.urlInvalid) }
