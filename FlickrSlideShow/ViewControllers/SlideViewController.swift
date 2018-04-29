@@ -22,15 +22,20 @@ class SlideViewController: UIViewController {
   var duration = 4
   
   var timer: Timer?
+  let imageQueue = FlickrImageQueue()
   
     
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    timer = Timer.scheduledTimer(timeInterval: 1.0,
-                                 target: self,
-                                 selector: #selector(checkIfTimeHasExceeded),
-                                 userInfo: nil, repeats: true)
+    activityIndicator.startAnimating()
+    waitUntilImageIsReady {
+      self.timer = Timer.scheduledTimer(timeInterval: 1.0,
+                                   target: self,
+                                   selector: #selector(self.checkIfTimeHasExceeded),
+                                   userInfo: nil, repeats: true)
+    }
+
   }
   
   override func didReceiveMemoryWarning() {
@@ -51,6 +56,23 @@ class SlideViewController: UIViewController {
 }
 
 extension SlideViewController {
+  
+  @objc private func waitUntilImageIsReady(completion: @escaping () -> Void) {
+    if let (metaData, image) = imageQueue.imageWithMetaData() {
+      DispatchQueue.main.async { [weak self] in
+        self?.titleLabel.text = metaData.title
+        self?.imageView.image = image
+        self?.activityIndicator.stopAnimating()
+        self?.activityIndicator.isHidden = true
+        completion()
+      }
+    } else {
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+        self?.waitUntilImageIsReady(completion: completion)
+      }
+    }
+  }
+  
   @objc private func checkIfTimeHasExceeded() {
     exposedSeconds += 1
     
@@ -68,7 +90,14 @@ extension SlideViewController {
     }) { finished in
       if finished {
         //change image
-        self.imageView.backgroundColor = (self.imageView.backgroundColor ?? UIColor.red) == UIColor.red ?  UIColor.blue : UIColor.red
+        
+        guard let (metaData, image) = self.imageQueue.imageWithMetaData()
+        else { return }
+        
+        self.activityIndicator.stopAnimating()
+        self.titleLabel.text = metaData.title
+        self.imageView.image = image
+        
         UIView.animate(withDuration: 0.5, animations: {
           self.imageView.alpha = 1
         }, completion: { (finished) in

@@ -25,6 +25,14 @@ final class FlickrImageQueue {
   let maxQueueLength = 40
   var currentIndex = 0
   
+  private var exposedList: [(hasExposed: Bool, metaData: FlickrImageMetaData)] {
+    return metaDataQueue.filter { $0.hasExposed }
+  }
+  
+  private var freshList: [(hasExposed: Bool, metaData: FlickrImageMetaData)] {
+    return metaDataQueue.filter { !$0.hasExposed }
+  }
+  
   init() {
     imageCache.countLimit = 100
   }
@@ -37,9 +45,6 @@ final class FlickrImageQueue {
         guard error == nil,
           let response = response
         else {
-          DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 0.5, execute: {
-            self?.requestNewImages()
-          })
           return
         }
         
@@ -47,7 +52,7 @@ final class FlickrImageQueue {
           FlickrImageAPI.shared.image(from: metaData) { image, error in
             guard let image = image
               else { return }
-            
+            print("added to \(self!.metaDataQueue.count)")
             self?.imageCache.setObject(image, forKey: metaData.mediaLink.nsString)
             self?.metaDataQueue.append((false, metaData))
           }
@@ -67,32 +72,41 @@ final class FlickrImageQueue {
    - returns: New Image and metadata from feed
    */
   func imageWithMetaData() -> (FlickrImageMetaData, UIImage)? {
-    let exposedList = metaDataQueue.filter { $0.hasExposed }
-    let freshList = metaDataQueue.filter { !$0.hasExposed }
+    if freshList.count < 5 { requestNewImages() }
+    if metaDataQueue.isEmpty { return nil }
+
+    let metaData: FlickrImageMetaData
+    let image: UIImage
     
     if freshList.isEmpty {
-      requestNewImages()
+      metaData = exposedList[currentIndex].metaData
+      guard let correspondingImage = imageCache.object(forKey: metaData.mediaLink.nsString)
+      else { return nil }
+      image = correspondingImage
       
-      guard let metaData = exposedList.count > currentIndex ? exposedList[currentIndex].metaData : nil,
-        let image = imageCache.object(forKey: metaData.mediaLink.nsString)
-      else {
-        return nil
-      }
-      currentIndex += 1
-      return (metaData,image)
+      currentIndex = (currentIndex + 1) % exposedList.count
+    } else {
+      guard let newMetaData = freshList.first?.metaData,
+        let correspondingImage = imageCache.object(forKey: newMetaData.mediaLink.nsString)
+      else { return nil }
+      
+      metaData = newMetaData
+      image = correspondingImage
+      
+      metaDataQueue[exposedList.count].hasExposed = true
     }
-    
-    guard let metaData = freshList.first?.metaData,
-      let image = imageCache.object(forKey: metaData.mediaLink.nsString)
-    else { return nil }
-    
-    metaDataQueue[exposedList.count].hasExposed = true
-    
+
     if metaDataQueue.count > maxQueueLength {
-      metaDataQueue.removeFirst()
-      currentIndex -= 1
+      removeOldest(decrementIndex: freshList.isEmpty)
     }
     
     return (metaData, image)
+  }
+  
+  private func removeOldest(decrementIndex: Bool) {
+    metaDataQueue.removeFirst()
+    if decrementIndex {
+      currentIndex -= 1
+    }
   }
 }
