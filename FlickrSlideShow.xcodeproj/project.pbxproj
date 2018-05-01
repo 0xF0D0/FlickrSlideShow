@@ -18,6 +18,7 @@
 		6C65ED57209408A20029FBD5 /* FlickrSlideShowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C65ED56209408A20029FBD5 /* FlickrSlideShowTests.swift */; };
 		6C833560209488B300662188 /* StartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C65ED43209408A10029FBD5 /* StartViewController.swift */; };
 		6C8335622094BCF100662188 /* FlickrImageQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C8335612094BCF100662188 /* FlickrImageQueue.swift */; };
+		6C8BC6F220990A19008CAE7C /* SlideViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C8BC6F120990A19008CAE7C /* SlideViewModel.swift */; };
 		6CF62F5220945F610043B409 /* FlickrImageAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CF62F5120945F610043B409 /* FlickrImageAPI.swift */; };
 		6CF62F54209460080043B409 /* FlickrURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CF62F53209460080043B409 /* FlickrURL.swift */; };
 		6CF62F572094626F0043B409 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CF62F562094626F0043B409 /* String.swift */; };
@@ -53,6 +54,7 @@
 		6C65ED56209408A20029FBD5 /* FlickrSlideShowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrSlideShowTests.swift; sourceTree = "<group>"; };
 		6C65ED58209408A20029FBD5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6C8335612094BCF100662188 /* FlickrImageQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrImageQueue.swift; sourceTree = "<group>"; };
+		6C8BC6F120990A19008CAE7C /* SlideViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideViewModel.swift; sourceTree = "<group>"; };
 		6CF62F5120945F610043B409 /* FlickrImageAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrImageAPI.swift; sourceTree = "<group>"; };
 		6CF62F53209460080043B409 /* FlickrURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrURL.swift; sourceTree = "<group>"; };
 		6CF62F562094626F0043B409 /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
@@ -92,6 +94,8 @@
 			indentWidth = 2;
 			sourceTree = "<group>";
 			tabWidth = 2;
+			usesTabs = 0;
+			wrapsLines = 1;
 		};
 		6C65ED3F209408A10029FBD5 /* Products */ = {
 			isa = PBXGroup;
@@ -109,6 +113,7 @@
 				6CF62F5020945D2D0043B409 /* FlickrAPI */,
 				6CF62F4F209428EF0043B409 /* Storyboards */,
 				6CF62F4E209428E30043B409 /* ViewControllers */,
+				6C8BC6F020990A02008CAE7C /* ViewModels */,
 				6C65ED41209408A10029FBD5 /* AppDelegate.swift */,
 				6C65ED48209408A20029FBD5 /* Assets.xcassets */,
 				6C65ED4D209408A20029FBD5 /* Info.plist */,
@@ -123,6 +128,14 @@
 				6C65ED58209408A20029FBD5 /* Info.plist */,
 			);
 			path = FlickrSlideShowTests;
+			sourceTree = "<group>";
+		};
+		6C8BC6F020990A02008CAE7C /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				6C8BC6F120990A19008CAE7C /* SlideViewModel.swift */,
+			);
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		6CF62F4E209428E30043B409 /* ViewControllers */ = {
@@ -352,6 +365,7 @@
 				6C65ED42209408A10029FBD5 /* AppDelegate.swift in Sources */,
 				6CF62F5220945F610043B409 /* FlickrImageAPI.swift in Sources */,
 				6C8335622094BCF100662188 /* FlickrImageQueue.swift in Sources */,
+				6C8BC6F220990A19008CAE7C /* SlideViewModel.swift in Sources */,
 				6C52578020946F9E00097E91 /* FlickrPublicFeedResponse.swift in Sources */,
 				6C52578220946FBB00097E91 /* FlickrImageMetaData.swift in Sources */,
 				6C46DE77209424EB00EE7F54 /* SlideViewController.swift in Sources */,
@@ -519,7 +533,10 @@
 				DEVELOPMENT_TEAM = ANM7DT8PCR;
 				INFOPLIST_FILE = FlickrSlideShow/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = bs.FlickrSlideShow;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -536,7 +553,10 @@
 				DEVELOPMENT_TEAM = ANM7DT8PCR;
 				INFOPLIST_FILE = FlickrSlideShow/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = bs.FlickrSlideShow;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -553,7 +573,11 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = ANM7DT8PCR;
 				INFOPLIST_FILE = FlickrSlideShowTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = bs.FlickrSlideShowTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -571,7 +595,11 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = ANM7DT8PCR;
 				INFOPLIST_FILE = FlickrSlideShowTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = bs.FlickrSlideShowTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
