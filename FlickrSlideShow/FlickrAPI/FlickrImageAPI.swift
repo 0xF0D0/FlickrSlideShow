@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import RxSwift
 
 final class FlickrImageAPI {
   static let shared = FlickrImageAPI()
@@ -31,50 +32,72 @@ final class FlickrImageAPI {
     return response
   }
   
-  ///Get image meta-data list from Flickr public feed
-  func listFromPublicFeed(completion: @escaping (FlickrPublicFeedResponse?, Error?) -> Void) {
-    guard let requestURL = URL(string: FlickrURL.publicFeedList)
-    else { return completion(nil, ResponseError.urlInvalid) }
-    
-    let task = URLSession.shared.dataTask(with: requestURL) { data, response, error in
-      guard error == nil,
-        let receivedData = data
+  ///Get image meta-data list from Flickr public feed (Rx version)
+  func listFromPublicFeed() -> Observable<FlickrPublicFeedResponse> {
+    return Observable<FlickrPublicFeedResponse>.create { observer in
+      let disposable = Disposables.create()
+      guard let requestURL = URL(string: FlickrURL.publicFeedList)
       else {
-          let error = error ?? ResponseError.dataEmpty
-          return completion(nil, error)
+        observer.on(.error(ResponseError.urlInvalid))
+        return disposable
       }
       
-      do {
-        let flickrResponse = try self.flickrResponse(from: receivedData)
-        completion(flickrResponse, nil)
-      } catch {
-        completion(nil, error)
+      let task = URLSession.shared.dataTask(with: requestURL) { data, response, error in
+        guard error == nil,
+          let receivedData = data
+        else {
+          let error = error ?? ResponseError.dataEmpty
+          observer.on(.error(error))
+          return
+        }
+        
+        do {
+          let flickrResponse = try self.flickrResponse(from: receivedData)
+          observer.on(.next(flickrResponse))
+          observer.on(.completed)
+        } catch {
+          observer.on(.error(error))
+        }
       }
+      
+      task.resume()
+      return disposable
     }
-    
-    task.resume()
+  }
+
+  ///Get image from url (Rx version)
+  func image(from metaData: FlickrImageMetaData) -> Observable<(FlickrImageMetaData, UIImage)?> {
+    return Observable<(FlickrImageMetaData, UIImage)?>.create { observer in
+      let disposable = Disposables.create()
+      guard let requestURL = URL(string: metaData.mediaLink)
+      else {
+        observer.on(.error(ResponseError.urlInvalid))
+        return disposable
+      }
+      
+      let task = URLSession.shared.downloadTask(with: requestURL) { location, _, error in
+        guard error == nil,
+          let location = location
+        else {
+          let error = error ?? ResponseError.downloadFailed
+          observer.on(.error(error))
+          return
+        }
+        
+        guard let imageData = FileManager.default.contents(atPath: location.path),
+          let image = UIImage(data: imageData)
+        else {
+          observer.on(.error(ResponseError.imageDecodeFailed))
+          return
+        }
+        observer.on(.next((metaData, image)))
+        observer.on(.completed)
+      }
+      
+      task.resume()
+      
+      return disposable
+    }
   }
   
-  ///Get image from url
-  func image(from metaData: FlickrImageMetaData, completion: @escaping (UIImage?, Error?) -> Void) {
-    guard let requestURL = URL(string: metaData.mediaLink)
-    else { return completion(nil, ResponseError.urlInvalid) }
-    
-    let task = URLSession.shared.downloadTask(with: requestURL) { (location, _, error) in
-      guard error == nil,
-        let location = location
-      else {
-        let error = error ?? ResponseError.downloadFailed
-        return completion(nil, error)
-      }
-      
-      guard let imageData = FileManager.default.contents(atPath: location.path),
-        let image = UIImage(data: imageData)
-      else { return completion(nil, ResponseError.imageDecodeFailed) }
-      
-      completion(image, nil)
-    }
-    
-    task.resume()
-  }
 }

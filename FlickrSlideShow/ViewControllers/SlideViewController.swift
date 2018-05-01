@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import RxSwift
 
 class SlideViewController: UIViewController {
   
@@ -23,19 +24,40 @@ class SlideViewController: UIViewController {
   
   var timer: Timer?
   let imageQueue = FlickrImageQueue()
+  let disposeBag = DisposeBag()
   
     
   override func viewDidLoad() {
     super.viewDidLoad()
     
     activityIndicator.startAnimating()
-    waitUntilImageIsReady {
-      self.timer = Timer.scheduledTimer(timeInterval: 1.0,
-                                   target: self,
-                                   selector: #selector(self.checkIfTimeHasExceeded),
-                                   userInfo: nil, repeats: true)
-    }
-
+    
+    imageQueue.metaDataImageObservable
+      .observeOn(MainScheduler.instance)
+      .subscribe(onNext: { metaData, image in
+      
+      UIView.animate(withDuration: 0.5, animations: {
+        self.imageView.alpha = 0
+      }) { finished in
+        if finished {
+          //change image
+          
+          self.activityIndicator.stopAnimating()
+          self.activityIndicator.isHidden = true
+          self.titleLabel.text = metaData.title
+          self.imageView.image = image
+          
+          UIView.animate(withDuration: 0.5, animations: {
+            self.imageView.alpha = 1
+          }, completion: { (finished) in
+            self.timer = Timer.scheduledTimer(timeInterval: 1.0,
+                                              target: self,
+                                              selector: #selector(self.checkIfTimeHasExceeded),
+                                              userInfo: nil, repeats: true)
+          })
+        }
+      }
+    }).disposed(by: disposeBag)
   }
   
   override func didReceiveMemoryWarning() {
@@ -57,56 +79,57 @@ class SlideViewController: UIViewController {
 
 extension SlideViewController {
   
-  @objc private func waitUntilImageIsReady(completion: @escaping () -> Void) {
-    if let (metaData, image) = imageQueue.imageWithMetaData() {
-      DispatchQueue.main.async { [weak self] in
-        self?.titleLabel.text = metaData.title
-        self?.imageView.image = image
-        self?.activityIndicator.stopAnimating()
-        self?.activityIndicator.isHidden = true
-        completion()
-      }
-    } else {
-      DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-        self?.waitUntilImageIsReady(completion: completion)
-      }
-    }
-  }
+//  @objc private func waitUntilImageIsReady(completion: @escaping () -> Void) {
+//    if let (metaData, image) = imageQueue.imageWithMetaData() {
+//      DispatchQueue.main.async { [weak self] in
+//        self?.titleLabel.text = metaData.title
+//        self?.imageView.image = image
+//        self?.activityIndicator.stopAnimating()
+//        self?.activityIndicator.isHidden = true
+//        completion()
+//      }
+//    } else {
+//      DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+//        self?.waitUntilImageIsReady(completion: completion)
+//      }
+//    }
+//  }
   
   @objc private func checkIfTimeHasExceeded() {
     exposedSeconds += 1
     
     if exposedSeconds >= duration {
       timer?.invalidate()
-      animateToNextImage()
+      exposedSeconds = 0
+      imageQueue.triggerOnNext()
     }
   }
   
-  private func animateToNextImage() {
-    exposedSeconds = 0
-    
-    UIView.animate(withDuration: 0.5, animations: {
-      self.imageView.alpha = 0
-    }) { finished in
-      if finished {
-        //change image
-        
-        guard let (metaData, image) = self.imageQueue.imageWithMetaData()
-        else { return }
-        
-        self.activityIndicator.stopAnimating()
-        self.titleLabel.text = metaData.title
-        self.imageView.image = image
-        
-        UIView.animate(withDuration: 0.5, animations: {
-          self.imageView.alpha = 1
-        }, completion: { (finished) in
-          self.timer = Timer.scheduledTimer(timeInterval: 1.0,
-                                       target: self,
-                                       selector: #selector(self.checkIfTimeHasExceeded),
-                                       userInfo: nil, repeats: true)
-        })
-      }
-    }
-  }
+//  private func animateToNextImage() {
+//    exposedSeconds = 0
+//
+//    UIView.animate(withDuration: 0.5, animations: {
+//      self.imageView.alpha = 0
+//    }) { finished in
+//      if finished {
+//        //change image
+//
+//        guard let (metaData, image) = self.imageQueue.imageWithMetaData()
+//        else { return }
+//
+//        self.activityIndicator.stopAnimating()
+//        self.titleLabel.text = metaData.title
+//        self.imageView.image = image
+//
+//        UIView.animate(withDuration: 0.5, animations: {
+//          self.imageView.alpha = 1
+//        }, completion: { (finished) in
+//          self.timer = Timer.scheduledTimer(timeInterval: 1.0,
+//                                       target: self,
+//                                       selector: #selector(self.checkIfTimeHasExceeded),
+//                                       userInfo: nil, repeats: true)
+//        })
+//      }
+//    }
+//  }
 }
