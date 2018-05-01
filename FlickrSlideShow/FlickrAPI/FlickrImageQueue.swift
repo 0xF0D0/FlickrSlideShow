@@ -7,106 +7,88 @@
 //
 
 import UIKit
+import RxSwift
 
-//I want it to be fresh all the time
-//HOw?
-
-//filter Bool and if empty go old ones
-//and at the same time request must be explicitly made once
-//Also! It should maintain it's size atmost 40ish?
-
-//Objective when pouring Rx.
-//1. If all image request ends, then be ready to make new request
-//2. make two consecutive requests as single observable
 
 final class FlickrImageQueue {
-  private var metaDataQueue: [(hasExposed: Bool, metaData: FlickrImageMetaData)] = []
+  private var freshMetaDataQueue = Variable<[FlickrImageMetaData]>([])
+  private var oldMetaDataQueue = Variable<[FlickrImageMetaData]>([])
   private var imageCache = NSCache<NSString, UIImage>()
-  let maxQueueLength = 40
-  var currentIndex = 0
+  private var isInitial = true
   
-  private var exposedList: [(hasExposed: Bool, metaData: FlickrImageMetaData)] {
-    return metaDataQueue.filter { $0.hasExposed }
+  private let maxQueueLength = 40
+  private let metaDataImageSubject = PublishSubject<(FlickrImageMetaData, UIImage)>()
+  private let disposeBag = DisposeBag()
+  
+  var metaDataImageObservable: Observable<(FlickrImageMetaData, UIImage)> {
+    return metaDataImageSubject.asObservable()
   }
   
-  private var freshList: [(hasExposed: Bool, metaData: FlickrImageMetaData)] {
-    return metaDataQueue.filter { !$0.hasExposed }
+  private var needsNewRequest: Observable<Bool> {
+    return freshMetaDataQueue.asObservable().map{ $0.count < 5}
   }
+  
+  private var shouldRemoveOldest: Observable<Bool> {
+    return oldMetaDataQueue.asObservable().map{ $0.count > self.maxQueueLength }
+  }
+  
   
   init() {
     imageCache.countLimit = 100
+    subscribeToChanges()
   }
   
-  //
+  private func subscribeToChanges() {
+    needsNewRequest.distinctUntilChanged()
+      .filter{ $0 }
+      .subscribe(onNext: {[weak self] _ in
+        self?.requestNewImages()
+      }).disposed(by: disposeBag)
+    
+    shouldRemoveOldest.asObservable()
+      .filter{ !$0 }
+      .observeOn(MainScheduler.asyncInstance)
+      .subscribe(onNext: { [weak self] _ in
+        if self?.oldMetaDataQueue.value.first != nil {
+          self?.oldMetaDataQueue.value.removeFirst()
+        }
+      }).disposed(by: disposeBag)
+  }
+  
+  //Request new images with Rx wrapper!
   private func requestNewImages() {
-    DispatchQueue.global(qos: .background).async {
-      
-      FlickrImageAPI.shared.listFromPublicFeed { [weak self] response, error in
-        guard error == nil,
-          let response = response
-        else {
-          return
-        }
-        
-        response.items.forEach { metaData in
-          FlickrImageAPI.shared.image(from: metaData) { image, error in
-            guard let image = image
-              else { return }
-            print("added to \(self!.metaDataQueue.count)")
-            self?.imageCache.setObject(image, forKey: metaData.mediaLink.nsString)
-            self?.metaDataQueue.append((false, metaData))
-          }
-        }
-        
+    FlickrImageAPI.shared.listFromPublicFeed()
+      .retry()
+      .flatMap{ Observable.from($0.items) }
+      .flatMap{
+        FlickrImageAPI.shared.image(from: $0).catchErrorJustReturn(nil)
       }
-      
-    }
+      .subscribe(onNext: { [weak self] in
+        guard let (metaData, image) = $0 else {return}
+        self?.imageCache.setObject(image, forKey: metaData.mediaLink.nsString)
+        self?.freshMetaDataQueue.value.append(metaData)
+        
+        //At the very beggining, we should emit image to start timer!
+        if self?.isInitial ?? false {
+          self?.isInitial = false
+          self?.triggerOnNext()
+        }
+      }).disposed(by: disposeBag)
   }
   
-  /**
-   - important: I think code quality here is not very unsatifying.
-   
-   Since metaDataQueue gets appended asynchronously, I had to add bound check logic in this function which led to bad readability.
-   
-   Code cleaning needed
-   - returns: New Image and metadata from feed
-   */
-  func imageWithMetaData() -> (FlickrImageMetaData, UIImage)? {
-    if freshList.count < 5 { requestNewImages() }
-    if metaDataQueue.isEmpty { return nil }
-
-    let metaData: FlickrImageMetaData
-    let image: UIImage
-    
-    if freshList.isEmpty {
-      metaData = exposedList[currentIndex].metaData
-      guard let correspondingImage = imageCache.object(forKey: metaData.mediaLink.nsString)
-      else { return nil }
-      image = correspondingImage
+  //Make metaDataImage Observable emit next event
+  func triggerOnNext() {
+    if let new = freshMetaDataQueue.value.first,
+      let newImage = imageCache.object(forKey: new.mediaLink.nsString) {
+      metaDataImageSubject.on(.next((new, newImage)))
       
-      currentIndex = (currentIndex + 1) % exposedList.count
-    } else {
-      guard let newMetaData = freshList.first?.metaData,
-        let correspondingImage = imageCache.object(forKey: newMetaData.mediaLink.nsString)
-      else { return nil }
+      oldMetaDataQueue.value.append(new)
+      freshMetaDataQueue.value.removeFirst()
+    } else if let old = oldMetaDataQueue.value.first,
+        let oldImage = imageCache.object(forKey: old.mediaLink.nsString) {
+      metaDataImageSubject.on(.next((old, oldImage)))
       
-      metaData = newMetaData
-      image = correspondingImage
-      
-      metaDataQueue[exposedList.count].hasExposed = true
-    }
-
-    if metaDataQueue.count > maxQueueLength {
-      removeOldest(decrementIndex: freshList.isEmpty)
-    }
-    
-    return (metaData, image)
-  }
-  
-  private func removeOldest(decrementIndex: Bool) {
-    metaDataQueue.removeFirst()
-    if decrementIndex {
-      currentIndex -= 1
+      oldMetaDataQueue.value.removeFirst()
     }
   }
 }
