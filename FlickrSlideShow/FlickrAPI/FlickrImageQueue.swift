@@ -8,11 +8,12 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 
 
 final class FlickrImageQueue {
-  private var freshMetaDataQueue = Variable<[FlickrImageMetaData]>([])
-  private var oldMetaDataQueue = Variable<[FlickrImageMetaData]>([])
+  private var freshMetaDataQueue = BehaviorRelay<[FlickrImageMetaData]>(value: [])
+  private var oldMetaDataQueue = BehaviorRelay<[FlickrImageMetaData]>(value: [])
   private var imageCache = NSCache<NSString, UIImage>()
   private var isInitial = true
   
@@ -46,11 +47,16 @@ final class FlickrImageQueue {
       }).disposed(by: disposeBag)
     
     shouldRemoveOldest.asObservable()
-      .filter{ !$0 }
+      .filter{ $0 }
       .observeOn(MainScheduler.asyncInstance)
       .subscribe(onNext: { [weak self] _ in
         if self?.oldMetaDataQueue.value.first != nil {
-          self?.oldMetaDataQueue.value.removeFirst()
+          var oldArray = self?.oldMetaDataQueue.value
+          oldArray?.removeFirst()
+          
+          if let unwrappedOldArray = oldArray{
+            self?.oldMetaDataQueue.accept(unwrappedOldArray)
+          }
         }
       }).disposed(by: disposeBag)
   }
@@ -58,7 +64,11 @@ final class FlickrImageQueue {
   //Request new images with Rx wrapper!
   private func requestNewImages() {
     FlickrImageAPI.shared.listFromPublicFeed()
-      .retry()
+      .retryWhen { e in
+        e.enumerated().flatMap { attempt, error -> Observable<Int> in
+          return Observable<Int>.timer(1, scheduler: MainScheduler.init()).take(1)
+        }
+      }
       .flatMap{ Observable.from($0.items) }
       .flatMap{
         FlickrImageAPI.shared.image(from: $0).catchErrorJustReturn(nil)
@@ -66,7 +76,12 @@ final class FlickrImageQueue {
       .subscribe(onNext: { [weak self] in
         guard let (metaData, image) = $0 else {return}
         self?.imageCache.setObject(image, forKey: metaData.mediaLink.nsString)
-        self?.freshMetaDataQueue.value.append(metaData)
+        
+        var newArray = self?.freshMetaDataQueue.value
+        newArray?.append(metaData)
+        if let unwrappedNewArray = newArray {
+          self?.freshMetaDataQueue.accept(unwrappedNewArray)
+        }
         
         //At the very beggining, we should emit image to start timer!
         if self?.isInitial ?? false {
@@ -82,13 +97,23 @@ final class FlickrImageQueue {
       let newImage = imageCache.object(forKey: new.mediaLink.nsString) {
       metaDataImageSubject.on(.next((new, newImage)))
       
-      oldMetaDataQueue.value.append(new)
-      freshMetaDataQueue.value.removeFirst()
+      var oldArray = oldMetaDataQueue.value
+      var newArray = freshMetaDataQueue.value
+      
+      oldArray.append(new)
+      newArray.removeFirst()
+      
+      oldMetaDataQueue.accept(oldArray)
+      freshMetaDataQueue.accept(newArray)
     } else if let old = oldMetaDataQueue.value.first,
         let oldImage = imageCache.object(forKey: old.mediaLink.nsString) {
       metaDataImageSubject.on(.next((old, oldImage)))
       
-      oldMetaDataQueue.value.removeFirst()
+      //rotate the array
+      var oldArray = oldMetaDataQueue.value
+      oldArray.append(old)
+      oldArray.removeFirst()
+      oldMetaDataQueue.accept(oldArray)
     }
   }
 }
