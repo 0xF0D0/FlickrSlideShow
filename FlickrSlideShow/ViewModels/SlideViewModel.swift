@@ -14,7 +14,7 @@ class SlideViewModel {
   private let isAnimatingRelay = BehaviorRelay<Bool>(value: true)
   private let sliderEventSubject = PublishSubject<Void>()
   
-  
+  //states
   private let durationRelay = BehaviorRelay<Int>(value: 4)
   private let exposedSecondsRelay = BehaviorRelay<Int>(value: 0)
   private let timer = Observable<Int>.timer(0.0, period: 1.0, scheduler: MainScheduler.instance)
@@ -64,8 +64,6 @@ class SlideViewModel {
       .distinctUntilChanged()
       .observeOn(MainScheduler.asyncInstance)
       .subscribe(onNext: { [weak self] value in
-        
-              print(value+1)
         self?.durationRelay.accept(value+1)
         self?.sliderValueRelay.accept(Float(value))
     }).disposed(by: disposeBag)
