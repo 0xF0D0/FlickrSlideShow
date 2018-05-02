@@ -69,15 +69,6 @@ class SlideViewModel {
         self?.durationRelay.accept(value+1)
         self?.sliderValueRelay.accept(Float(value))
     }).disposed(by: disposeBag)
-//    sliderEventSubject.subscribe(onNext: { [weak self] in
-//      guard let value = self?.sliderValueRelay.value
-//      else {return}
-//
-//      let sliderValue = lroundf(Float(value))
-////      print(sliderValue)
-//      self?.durationRelay.accept(Int(sliderValue+1))
-//      self?.sliderValueRelay.accept(Float(sliderValue))
-//
-//    }).disposed(by: disposeBag)
+
   }
 }
