@@ -65,9 +65,6 @@
                                     <constraint firstAttribute="width" relation="lessThanOrEqual" constant="416" id="G3O-cI-ieX"/>
                                     <constraint firstAttribute="height" constant="48" id="SGE-pb-KPK"/>
                                 </constraints>
-                                <connections>
-                                    <action selector="valueChanged:" destination="pb3-hm-Oa4" eventType="valueChanged" id="sAd-nP-ncr"/>
-                                </connections>
                             </slider>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vmJ-N1-Nar">
                                 <rect key="frame" x="46" y="84" width="283" height="608"/>
@@ -125,6 +122,7 @@
                         <outlet property="activityIndicator" destination="Ke9-gr-8Xi" id="h4G-RW-rUq"/>
                         <outlet property="durationLabel" destination="QFM-yv-K2S" id="MHW-Jb-oOa"/>
                         <outlet property="imageView" destination="rmJ-g7-EkP" id="twL-2k-EZA"/>
+                        <outlet property="slider" destination="dpn-Yz-7cf" id="fzs-z8-kTS"/>
                         <outlet property="titleLabel" destination="Ufi-Zi-pj5" id="I9v-bs-N9Q"/>
                     </connections>
                 </viewController>
