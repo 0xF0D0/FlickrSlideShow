@@ -19,15 +19,12 @@ class SlideViewController: UIViewController {
   @IBOutlet weak var slider: UISlider!
     
   let disposeBag = DisposeBag()
-  let isAnimatingRelay = BehaviorRelay(value: true)
   var viewModel: SlideViewModel?
     
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    viewModel = SlideViewModel(isAnimating: isAnimatingRelay.asObservable(),
-                               sliderValueChanged: slider.rx.controlEvent(.valueChanged),
-                               sliderValue: slider.rx.value)
+    viewModel = SlideViewModel(sliderValue: slider.rx.value)
     
     subscribeToChanges()
     
@@ -41,33 +38,45 @@ class SlideViewController: UIViewController {
   
   private func subscribeToChanges() {
     viewModel?.metaDataImageObservable
-    .observeOn(MainScheduler.instance)
-    .subscribe(onNext: { metaData, image in
-      self.isAnimatingRelay.accept(true)
-      UIView.animate(withDuration: 0.5, animations: {
-        self.imageView.alpha = 0
-      }) { finished in
-        if finished {
-          //change image
-          self.activityIndicator.stopAnimating()
-          self.activityIndicator.isHidden = true
-          self.titleLabel.text = metaData.title
-          self.imageView.image = image
-          
-          UIView.animate(withDuration: 0.5, animations: {
-            self.imageView.alpha = 1
-            self.isAnimatingRelay.accept(false)
-          })
-        }
-        }
-    }).disposed(by: disposeBag)
+      .observeOn(MainScheduler.instance)
+      .subscribe(processImage).disposed(by: disposeBag)
     
-    viewModel?.sliderValueRelay
-    .observeOn(MainScheduler.instance)
-    .subscribe(onNext: {[weak self] value in
-      let sliderValue = lroundf(value)
-      self?.durationLabel.text = "duration: \(sliderValue+1)"
-      self?.slider.setValue(Float(sliderValue), animated: false)
-    }).disposed(by: disposeBag)
+    viewModel?.state.slideDuration
+      .observeOn(MainScheduler.instance)
+      .map{ Float($0) }
+      .bind(to: slider.rx.value)
+      .disposed(by: disposeBag)
+    
+    viewModel?.state.slideDuration
+      .observeOn(MainScheduler.instance)
+      .distinctUntilChanged()
+      .map { "duration: \($0+1)" }
+      .bind(to: durationLabel.rx.text)
+      .disposed(by: disposeBag)
+    
+  }
+  
+  private func processImage(event: Event<(FlickrImageMetaData, UIImage)>) -> Void{
+    
+    guard case let .next(metaData, image) = event else {return}
+    
+    self.viewModel?.state.isAnimating.accept(true)
+    UIView.animate(withDuration: 0.5, animations: {
+      self.imageView.alpha = 0
+    }) { finished in
+      if finished {
+        //change image
+        self.activityIndicator.stopAnimating()
+        self.activityIndicator.isHidden = true
+        self.titleLabel.text = metaData.title
+        self.imageView.image = image
+        
+        UIView.animate(withDuration: 0.5, animations: {
+          self.imageView.alpha = 1
+          self.viewModel?.state.isAnimating.accept(false)
+        })
+      }
+    }
+    
   }
 }
