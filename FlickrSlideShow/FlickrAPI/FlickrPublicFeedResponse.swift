@@ -10,17 +10,17 @@ import Foundation
 
 //Formatted Flickr list response
 struct FlickrPublicFeedResponse {
-  let items: [FlickrImageMetaData]
+    let items: [FlickrImageMetaData]
 }
 
 extension FlickrPublicFeedResponse: Decodable {
-  private enum CodingKeys: CodingKey {
-    case items
-  }
-  
-  public init(from decoder: Decoder) throws {
-    let values = try decoder.container(keyedBy: CodingKeys.self)
+    private enum CodingKeys: CodingKey {
+        case items
+    }
     
-    self.items = try values.decode([FlickrImageMetaData].self, forKey: .items)
-  }
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        
+        self.items = try values.decode([FlickrImageMetaData].self, forKey: .items)
+    }
 }

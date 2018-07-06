@@ -91,9 +91,9 @@
 				8F91015065D505A18F042C8A /* Pods */,
 				A8C8D79042A09E0BA9F89646 /* Frameworks */,
 			);
-			indentWidth = 2;
+			indentWidth = 4;
 			sourceTree = "<group>";
-			tabWidth = 2;
+			tabWidth = 4;
 			usesTabs = 0;
 			wrapsLines = 1;
 		};
@@ -530,7 +530,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = ANM7DT8PCR;
+				DEVELOPMENT_TEAM = 7PZ7AG6K6T;
 				INFOPLIST_FILE = FlickrSlideShow/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -550,7 +550,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = ANM7DT8PCR;
+				DEVELOPMENT_TEAM = 7PZ7AG6K6T;
 				INFOPLIST_FILE = FlickrSlideShow/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
