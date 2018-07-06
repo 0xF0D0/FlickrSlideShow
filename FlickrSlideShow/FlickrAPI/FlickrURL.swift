@@ -9,5 +9,5 @@
 import Foundation
 
 enum FlickrURL {
-  static let publicFeedList = "https://api.flickr.com/services/feeds/photos_public.gne?format=json"
+    static let publicFeedList = "https://api.flickr.com/services/feeds/photos_public.gne?format=json"
 }

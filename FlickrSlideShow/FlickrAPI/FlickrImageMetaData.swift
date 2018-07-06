@@ -9,25 +9,25 @@
 import Foundation
 
 struct FlickrImageMetaData {
-  let title: String
-  let flickrLink: String
-  let mediaLink: String
+    let title: String
+    let flickrLink: String
+    let mediaLink: String
 }
 
 extension FlickrImageMetaData: Decodable {
-  private enum CodingKeys: CodingKey {
-    case title
-    case link
-    case media
-  }
-  
-  public init(from decoder: Decoder) throws {
-    let values = try decoder.container(keyedBy: CodingKeys.self)
+    private enum CodingKeys: CodingKey {
+        case title
+        case link
+        case media
+    }
     
-    self.title = try values.decode(String.self, forKey: .title)
-    self.flickrLink = try values.decode(String.self, forKey: .link)
-    self.mediaLink = (try values.decode(FlickrMediaResponse.self, forKey: .media)).mediaLink
-  }
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        
+        self.title = try values.decode(String.self, forKey: .title)
+        self.flickrLink = try values.decode(String.self, forKey: .link)
+        self.mediaLink = (try values.decode(FlickrMediaResponse.self, forKey: .media)).mediaLink
+    }
 }
 
 /**
@@ -39,17 +39,17 @@ extension FlickrImageMetaData: Decodable {
  ```
  */
 private struct FlickrMediaResponse {
-  let mediaLink: String
+    let mediaLink: String
 }
 
 extension FlickrMediaResponse: Decodable {
-  private enum CodingKeys: String, CodingKey {
-    case image = "m"
-  }
-  
-  public init(from decoder: Decoder) throws {
-    let values = try decoder.container(keyedBy: CodingKeys.self)
+    private enum CodingKeys: String, CodingKey {
+        case image = "m"
+    }
     
-    self.mediaLink = try values.decode(String.self, forKey: .image)
-  }
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        
+        self.mediaLink = try values.decode(String.self, forKey: .image)
+    }
 }
