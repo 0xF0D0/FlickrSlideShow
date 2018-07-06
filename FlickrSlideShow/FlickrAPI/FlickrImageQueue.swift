@@ -54,7 +54,7 @@ final class FlickrImageQueue {
           var oldArray = self?.oldMetaDataQueue.value
           oldArray?.removeFirst()
           
-          if let unwrappedOldArray = oldArray{
+          if let unwrappedOldArray = oldArray {
             self?.oldMetaDataQueue.accept(unwrappedOldArray)
           }
         }
@@ -66,7 +66,7 @@ final class FlickrImageQueue {
     FlickrImageAPI.shared.listFromPublicFeed()
       .retryWhen { e in
         e.enumerated().flatMap { attempt, error -> Observable<Int> in
-          return Observable<Int>.timer(1, scheduler: MainScheduler.init()).take(1)
+          return Observable<Int>.just(1).delay(1.0, scheduler: MainScheduler.instance)
         }
       }
       .flatMap{ Observable.from($0.items) }
